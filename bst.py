@@ -203,26 +203,46 @@ class BST:
         return True
 
     def _remove_no_subtrees(self, remove_parent: BSTNode, remove_node: BSTNode) -> None:
-        """
-        TODO: Write your implementation
-        """
-        # remove node that has no subtrees (no left or right nodes)
-        pass
+        if remove_parent is None:
+            self._root = None
+        elif remove_parent.left is remove_node:
+            remove_parent.left = None
+        else:
+            remove_parent.right = None
 
     def _remove_one_subtree(self, remove_parent: BSTNode, remove_node: BSTNode) -> None:
-        """
-        TODO: Write your implementation
-        """
-        # remove node that has a left or right subtree (only)
-        pass
+        child = remove_node.left if remove_node.left is not None else remove_node.right
+
+        if remove_parent is None:
+            self._root = child
+        elif remove_parent.left is remove_node:
+            remove_parent.left = child
+        else:
+            remove_parent.right = child
 
     def _remove_two_subtrees(self, remove_parent: BSTNode, remove_node: BSTNode) -> None:
-        """
-        TODO: Write your implementation
-        """
-        # remove node that has two subtrees
-        # need to find inorder successor and its parent (make a method!)
-        pass
+        succ_parent = remove_node
+        successor = remove_node.right
+
+        while successor.left is not None:
+            succ_parent = successor
+            successor = successor.left
+
+        if succ_parent.left is successor:
+            succ_parent.left = successor.right
+        else:
+            succ_parent.right = successor.right
+
+        successor.left = remove_node.left
+        if succ_parent is not remove_node:
+            successor.right = remove_node.right
+
+        if remove_parent is None:
+            self._root = successor
+        elif remove_parent.left is remove_node:
+            remove_parent.left = successor
+        else:
+            remove_parent.right = successor
 
     def contains(self, value: object) -> bool:
         """
