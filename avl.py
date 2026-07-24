@@ -99,21 +99,22 @@ class AVL(BST):
     # ---------------------------------------------------------------------- #
 
     def add(self, value: object) -> None:
-        new_node = AVLNode(value)
-
         if self._root is None:
-            self._root = new_node
+            self._root = AVLNode(value)
             return
 
         current = self._root
         parent = None
         while current is not None:
+            if value == current.value:
+                return  # duplicate value: do nothing
             parent = current
             if value < current.value:
                 current = current.left
             else:
                 current = current.right
 
+        new_node = AVLNode(value)
         new_node.parent = parent
         if value < parent.value:
             parent.left = new_node
