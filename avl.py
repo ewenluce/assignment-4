@@ -1,9 +1,9 @@
-# Name:
-# OSU Email:
+# Name: Ewen Luce
+# OSU Email: lucee@oregonstate.edu
 # Course: CS261 - Data Structures
-# Assignment:
-# Due Date:
-# Description:
+# Assignment: 4
+# Due Date: 7/20/26
+# Description: Implementation of a AVL class with multiple executable methods.
 
 
 import random
@@ -99,72 +99,171 @@ class AVL(BST):
     # ---------------------------------------------------------------------- #
 
     def add(self, value: object) -> None:
-        """
-        TODO: Write your implementation
-        """
-        pass
+        new_node = AVLNode(value)
+
+        if self._root is None:
+            self._root = new_node
+            return
+
+        current = self._root
+        parent = None
+        while current is not None:
+            parent = current
+            if value < current.value:
+                current = current.left
+            else:
+                current = current.right
+
+        new_node.parent = parent
+        if value < parent.value:
+            parent.left = new_node
+        else:
+            parent.right = new_node
+
+        self._rebalance(parent)
 
     def remove(self, value: object) -> bool:
-        """
-        TODO: Write your implementation
-        """
-        pass
+        node = self._root
+        while node is not None and node.value != value:
+            if value < node.value:
+                node = node.left
+            else:
+                node = node.right
 
-    # Experiment and see if you can use the optional                         #
-    # subtree removal methods defined in the BST here in the AVL.            #
-    # Call normally using self -> self._remove_no_subtrees(parent, node)     #
-    # You need to override the _remove_two_subtrees() method in any case.    #
-    # Remove these comments.                                                 #
-    # Remove these method stubs if you decide not to use them.               #
-    # Change this method in any way you'd like.                              #
+        if node is None:
+            return False
+
+        parent = node.parent
+
+        if node.left is not None and node.right is not None:
+            rebalance_start = self._remove_two_subtrees(parent, node)
+        elif node.left is not None or node.right is not None:
+            child = node.left if node.left is not None else node.right
+            child.parent = parent
+            if parent is None:
+                self._root = child
+            elif parent.left is node:
+                parent.left = child
+            else:
+                parent.right = child
+            rebalance_start = parent
+        else:
+            if parent is None:
+                self._root = None
+            elif parent.left is node:
+                parent.left = None
+            else:
+                parent.right = None
+            rebalance_start = parent
+
+        if rebalance_start is not None:
+            self._rebalance(rebalance_start)
+
+        return True
 
     def _remove_two_subtrees(self, remove_parent: AVLNode, remove_node: AVLNode) -> AVLNode:
-        """
-        TODO: Write your implementation
-        """
-        pass
+        succ_parent = remove_node
+        successor = remove_node.right
 
-    # It's highly recommended to implement                          #
-    # the following methods for balancing the AVL Tree.             #
-    # Remove these comments.                                        #
-    # Remove these method stubs if you decide not to use them.      #
-    # Change these methods in any way you'd like.                   #
+        while successor.left is not None:
+            succ_parent = successor
+            successor = successor.left
+
+        if succ_parent is not remove_node:
+            succ_parent.left = successor.right
+            if successor.right is not None:
+                successor.right.parent = succ_parent
+            rebalance_start = succ_parent
+
+            successor.right = remove_node.right
+            remove_node.right.parent = successor
+        else:
+            rebalance_start = successor
+
+        successor.left = remove_node.left
+        if remove_node.left is not None:
+            remove_node.left.parent = successor
+
+        successor.parent = remove_parent
+        if remove_parent is None:
+            self._root = successor
+        elif remove_parent.left is remove_node:
+            remove_parent.left = successor
+        else:
+            remove_parent.right = successor
+
+        return rebalance_start
 
     def _balance_factor(self, node: AVLNode) -> int:
-        """
-        TODO: Write your implementation
-        """
-        pass
+        return self._get_height(node.left) - self._get_height(node.right)
 
     def _get_height(self, node: AVLNode) -> int:
-        """
-        TODO: Write your implementation
-        """
-        pass
+        return node.height if node is not None else -1
 
     def _rotate_left(self, node: AVLNode) -> AVLNode:
-        """
-        TODO: Write your implementation
-        """
-        pass
+        right_child = node.right
+
+        node.right = right_child.left
+        if right_child.left is not None:
+            right_child.left.parent = node
+
+        right_child.parent = node.parent
+        if node.parent is None:
+            self._root = right_child
+        elif node.parent.left is node:
+            node.parent.left = right_child
+        else:
+            node.parent.right = right_child
+
+        right_child.left = node
+        node.parent = right_child
+
+        self._update_height(node)
+        self._update_height(right_child)
+
+        return right_child
 
     def _rotate_right(self, node: AVLNode) -> AVLNode:
-        """
-        TODO: Write your implementation
-        """
-        pass
+        left_child = node.left
+
+        node.left = left_child.right
+        if left_child.right is not None:
+            left_child.right.parent = node
+
+        left_child.parent = node.parent
+        if node.parent is None:
+            self._root = left_child
+        elif node.parent.left is node:
+            node.parent.left = left_child
+        else:
+            node.parent.right = left_child
+
+        left_child.right = node
+        node.parent = left_child
+
+        self._update_height(node)
+        self._update_height(left_child)
+
+        return left_child
 
     def _update_height(self, node: AVLNode) -> None:
-        """
-        TODO: Write your implementation
-        """
-        pass
+        node.height = 1 + max(self._get_height(node.left), self._get_height(node.right))
 
     def _rebalance(self, node: AVLNode) -> None:
-        """
-        TODO: Write your implementation
-        """
-        pass
+        while node is not None:
+            self._update_height(node)
+            balance = self._balance_factor(node)
+
+            if balance > 1:
+                if self._balance_factor(node.left) < 0:
+                    self._rotate_left(node.left)
+                node = self._rotate_right(node)
+            elif balance < -1:
+                if self._balance_factor(node.right) > 0:
+                    self._rotate_right(node.right)
+                node = self._rotate_left(node)
+
+            node = node.parent
 
 
 # ------------------- BASIC TESTING -----------------------------------------
