@@ -159,22 +159,48 @@ class BST:
     # ------------------------------------------------------------------ #
 
     def add(self, value: object) -> None:
-        """
-        TODO: Write your implementation
-        """
-        pass
+        new_node = BSTNode(value)
+
+        if self._root is None:
+            self._root = new_node
+            return
+
+        current = self._root
+        parent = None
+        while current is not None:
+            parent = current
+            if value < current.value:
+                current = current.left
+            else:
+                current = current.right
+
+        if value < parent.value:
+            parent.left = new_node
+        else:
+            parent.right = new_node
 
     def remove(self, value: object) -> bool:
-        """
-        TODO: Write your implementation
-        """
-        pass
+        parent = None
+        node = self._root
 
-    # Consider implementing methods that handle different removal scenarios; #
-    # you may find that you're able to use some of them in the AVL.          #
-    # Remove these comments.                                                 #
-    # Remove these method stubs if you decide not to use them.               #
-    # Change these methods in any way you'd like.                            #
+        while node is not None and node.value != value:
+            parent = node
+            if value < node.value:
+                node = node.left
+            else:
+                node = node.right
+
+        if node is None:
+            return False
+
+        if node.left is not None and node.right is not None:
+            self._remove_two_subtrees(parent, node)
+        elif node.left is not None or node.right is not None:
+            self._remove_one_subtree(parent, node)
+        else:
+            self._remove_no_subtrees(parent, node)
+
+        return True
 
     def _remove_no_subtrees(self, remove_parent: BSTNode, remove_node: BSTNode) -> None:
         """
