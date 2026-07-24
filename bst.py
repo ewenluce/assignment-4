@@ -1,9 +1,9 @@
-# Name:
-# OSU Email:
+# Name: Ewen Luce
+# OSU Email: lucee@oregonstate.edu
 # Course: CS261 - Data Structures
-# Assignment:
-# Due Date:
-# Description:
+# Assignment: 4
+# Due Date: 7/20/26
+# Description: Implementation of a BST class with multiple executable methods.
 
 
 import random
@@ -245,40 +245,52 @@ class BST:
             remove_parent.right = successor
 
     def contains(self, value: object) -> bool:
-        """
-        TODO: Write your implementation
-        """
-        pass
+        current = self._root
+        while current is not None:
+            if value == current.value:
+                return True
+            elif value < current.value:
+                current = current.left
+            else:
+                current = current.right
+        return False
 
     def inorder_traversal(self) -> Queue:
-        """
-        TODO: Write your implementation
-        """
-        pass
+        result = Queue()
+        stack = Stack()
+        current = self._root
+
+        while current is not None or not stack.is_empty():
+            while current is not None:
+                stack.push(current)
+                current = current.left
+            current = stack.pop()
+            result.enqueue(current.value)
+            current = current.right
+
+        return result
 
     def find_min(self) -> object:
-        """
-        TODO: Write your implementation
-        """
-        pass
+        if self._root is None:
+            return None
+        current = self._root
+        while current.left is not None:
+            current = current.left
+        return current.value
 
     def find_max(self) -> object:
-        """
-        TODO: Write your implementation
-        """
-        pass
+        if self._root is None:
+            return None
+        current = self._root
+        while current.right is not None:
+            current = current.right
+        return current.value
 
     def is_empty(self) -> bool:
-        """
-        TODO: Write your implementation
-        """
-        pass
+        return self._root is None
 
     def make_empty(self) -> None:
-        """
-        TODO: Write your implementation
-        """
-        pass
+        self._root = None
 
 
 # ------------------- BASIC TESTING -----------------------------------------
